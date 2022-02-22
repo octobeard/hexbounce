@@ -70,7 +70,6 @@ abstract class Hexbase : PApplet() {
     abstract fun hexBaseSetup()
 
     override fun draw() {
-        background(bgColor)
         if (recordOutput) {
             delay(recordTimeDelay)
         }  else {
@@ -174,5 +173,4 @@ abstract class Hexbase : PApplet() {
         minim.stop()
         super.stop()
     }
-
 }
