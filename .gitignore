@@ -2,11 +2,18 @@ build/
 .gradle
 .idea
 
-render/*.png
-render/*.pdf
-render/*.mp4
-render/*.mkv
-render/*.blender
+render/**/*.png
+render/**/*.pdf
+render/**/*.mp4
+render/**/*.mkv
+render/**/*.tif
+render/**/*.tiff
+render/**/*.blender
+
+data/**/*.aiff
+data/**/*.aif
+data/**/*.wav
+data/**/*.flac
 
 .DS_Store
 
