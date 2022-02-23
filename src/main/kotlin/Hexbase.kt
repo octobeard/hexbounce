@@ -15,7 +15,7 @@ abstract class Hexbase : PApplet() {
 // PRIMARY SETTINGS
     val fullscreen     	 = false
     val recordOutput	 = false
-    val streamAudio		 = false
+    val streamAudio		 = true
     val showVisualizer   = true
     
 // *************************************************************************************************************
@@ -70,7 +70,6 @@ abstract class Hexbase : PApplet() {
     abstract fun hexBaseSetup()
 
     override fun draw() {
-        background(bgColor)
         if (recordOutput) {
             delay(recordTimeDelay)
         }  else {
@@ -174,5 +173,4 @@ abstract class Hexbase : PApplet() {
         minim.stop()
         super.stop()
     }
-
 }

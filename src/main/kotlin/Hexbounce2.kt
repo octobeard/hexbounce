@@ -1,4 +1,5 @@
 import hype.H
+import hype.HCanvas
 import hype.HDrawablePool
 import hype.HShape
 import hype.extended.behavior.HTimer
@@ -6,9 +7,12 @@ import hype.extended.colorist.HColorPool
 import hype.extended.layout.HGridLayout
 
 
-class Hexbounce1 : Hexbase() {
-    var poolCount = 220
+class Hexbounce2 : Hexbase() {
+    var poolCount = 140
     var swapXY = false
+
+    lateinit var canvas: HCanvas
+    lateinit var canvas2: HCanvas
 
     val pool1 = HDrawablePool(poolCount);
     val pool2 = HDrawablePool(135)
@@ -56,8 +60,14 @@ class Hexbounce1 : Hexbase() {
     )
 
     override fun hexBaseSetup() {
-        pool2.autoAddToStage().add(HShape(PATH_DATA + "hexagon.svg"))
-            .layout(HGridLayout()
+        canvas = HCanvas(stageW.toFloat(), stageH.toFloat()).autoClear(false).fade(3)
+        canvas2 = HCanvas(stageW.toFloat(), stageH.toFloat()).autoClear(true)
+        H.add(canvas2)
+        H.add(canvas)
+
+        pool2.autoParent(canvas2).add(HShape(PATH_DATA + "hexagon.svg"))
+            .layout(
+                HGridLayout()
                 .startX(stageW/20f)
                 .startY(0f)
                 .spacing(stageW/10f,stageW/10f)
@@ -71,23 +81,23 @@ class Hexbounce1 : Hexbase() {
                     .anchorAt(H.CENTER)
                     .rotate( 90f * random(3f).toInt() )
                     .size( stageW / 10f )
-                    .alpha(40)
+                    .alpha(50)
                     .num("band", random(myAudioRange.toFloat()).toInt().toFloat())
 
                 d.randomColors(colorPool.fillOnly())
             }
             .requestAll()
-        
-        pool1.autoAddToStage().add(HShape(PATH_DATA + "hexagon.svg"))
+
+        pool1.autoParent(canvas).add(HShape(PATH_DATA + "hexagon.svg"))
             .layout(HGridLayout()
                 .startX(10f)
                 .startY(40f)
-                .spacing(stageW/20f, stageW/20f)
-                .cols(20)
+                .spacing(stageW/15f, stageW/15f)
+                .cols(15)
             )
             .onCreate { obj ->
                 val d = obj as HShape
-                val initSizeOffset = random(myAudioRange * 6f).toInt() + 50
+                val initSizeOffset = random(myAudioRange * 6f).toInt() + 40
                 d
                     .enableStyle(false)
                     .stroke(0x000000.rgb())
@@ -113,6 +123,8 @@ class Hexbounce1 : Hexbase() {
     }
 
     override fun hexBaseDraw() {
+        val canvasAlphaFft = map(myAudioData[0], 0f, (myAudioMax / 2).toFloat(), 10f, 255f).toInt()
+        canvas.alpha(canvasAlphaFft)
         for (d in pool1) {
             val band = d.num("band").toInt()
             val initSize = d.num("initSize").toInt()
@@ -144,11 +156,13 @@ class Hexbounce1 : Hexbase() {
                     d.y(d.num("initY") + yFft)
                 } else {
                     d.x(d.num("initX") + xFft)
+                    (d as HShape).randomColors(blueColorPool.fillOnly())
                 }
             } else if (band == 2) {
                 d.alpha(alphaFft)
                 if (swapXY) {
                     d.x(d.num("initX") + xFft)
+                    (d as HShape).randomColors(blueColorPool.fillOnly())
                 } else {
                     d.y(d.num("initY") + yFft)
                 }
@@ -157,6 +171,14 @@ class Hexbounce1 : Hexbase() {
             } else {
                 d.alpha(alphaFft)
                 d.size(sizeFftSmall.toFloat())
+                if (myAudioData[0] <= 5) {
+                    if (swapXY) {
+                        d.x(d.num("initX") + xFft)
+                        (d as HShape).randomColors(blueColorPool.fillOnly())
+                    } else {
+                        d.y(d.num("initY") + yFft)
+                    }
+                }
             }
         }
     }
