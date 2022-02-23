@@ -8,7 +8,7 @@ import hype.extended.behavior.HTimer
 import hype.extended.layout.HGridLayout
 
 
-class Hexbounce4 : Hexbase() {
+class Hexbounce5 : Hexbase() {
     var swapXY = false
 
     lateinit var canvas: HCanvas
@@ -18,17 +18,19 @@ class Hexbounce4 : Hexbase() {
     var pool1Rows = (pool1Cols * stageH.toFloat() / stageW.toFloat()).toInt() + 1
     var pool2Cols = 15
     var pool2Rows = (pool2Cols * stageH.toFloat() / stageW.toFloat()).toInt() + 1
-    val pool1 = HDrawablePool(pool1Cols * pool1Rows)
+    val pool1 = HDrawablePool(pool1Cols * pool1Rows);
     val pool2 = HDrawablePool(pool2Cols * pool2Rows)
 
     override fun hexBaseSetup() {
+        hint(DISABLE_TEXTURE_MIPMAPS);
+
         canvas = HCanvas(stageW.toFloat(), stageH.toFloat()).autoClear(false).fade(2)
         canvas2 = HCanvas(stageW.toFloat(), stageH.toFloat()).autoClear(false).fade(3)
-        H.add(canvas2)
+        H.add(canvas2) // comment this out to match Pollen music video
         H.add(canvas)
 
         pool1.autoParent(canvas)
-            .add(HShape(PATH_DATA + "cyrcle1.svg"))
+            //.add(HShape(PATH_DATA + "cyrcle1.svg"))
             .add(HShape(PATH_DATA + "cyrcle2.svg"))
             .add(HShape(PATH_DATA + "cyrcle3.svg"))
             .add(HShape(PATH_DATA + "cyrcle4.svg"))
@@ -58,15 +60,11 @@ class Hexbounce4 : Hexbase() {
                 if (rotateValue == 0) rotateValue = 1
                 HRotate(d, rotateValue.toFloat())
                 d.randomColors(colorPool.fillOnly())
-
-                HOscillator()
-                    .target(d)
-                    .property(H.SIZE)
-                    .relativeVal(initSize.toFloat())
-                    .range(-100f, 250f)
+                d.obj("osc", HOscillator()
+                    .range(initSize.toFloat(), (initSize + random(50f, 200f).toInt()).toFloat())
                     .speed(random(2f))
                     .freq(2f)
-                    .currentStep(pool1.currentIndex().toFloat())
+                )
             }
             .requestAll()
 
@@ -129,11 +127,30 @@ class Hexbounce4 : Hexbase() {
         HTimer().interval(1000).callback {
             swapXY = !swapXY;
         }
+        HTimer().interval(2000).callback {
+            for (d in pool1) {
+                (d as HShape).randomColors(colorPool.fillOnly())
+            }
+        }
+        HTimer().interval(5000).callback {
+            for (d in pool1) {
+                d.num("band", random(myAudioRange.toFloat()).toInt().toFloat())
+            }
+        }
     }
 
     override fun hexBaseDraw() {
         val canvasAlphaFft = map(myAudioData[0], 0f, (myAudioMax / 2).toFloat(), 10f, 255f).toInt()
         canvas2.alpha(canvasAlphaFft)
+        for (d in pool1) {
+            val band = d.num("band").toInt()
+            val osc = d.obj("osc") as HOscillator
+            val oscVal = osc.nextRaw()
+            val sizeFft =
+                map(myAudioData[band], 0f, (myAudioMax / 2).toFloat(), oscVal - 10, oscVal + (300 - band * 10)).toInt()
+            d.size(sizeFft.toFloat())
+        }
+
         for (d in pool2) {
             val band = d.num("band").toInt()
             val initSize = d.num("initSize").toInt()
@@ -143,7 +160,6 @@ class Hexbounce4 : Hexbase() {
             val sizeFftSmall =
                 map(myAudioData[band], 0f, myAudioMax.toFloat(), initSize.toFloat(), (initSize + 50).toFloat()).toInt()
             val alphaFft = map(myAudioData[7], 0f, (myAudioMax / 4).toFloat(), 100f, 255f).toInt()
-            val rotateFft = map(myAudioData[band], 0f, myAudioMax.toFloat(), -40f, 40f).toInt()
             val yFft = map(
                 myAudioData[band],
                 0f,
@@ -159,7 +175,6 @@ class Hexbounce4 : Hexbase() {
                 (100 + rand).toFloat()
             ).toInt()
             if (band == 0) {
-                //d.rotate(rotateFft);
                 d.alpha(alphaFft)
                 if (swapXY) {
                     d.y(d.num("initY") + yFft)

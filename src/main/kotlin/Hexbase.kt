@@ -3,6 +3,7 @@ import ddf.minim.AudioPlayer
 import ddf.minim.Minim
 import ddf.minim.analysis.FFT
 import hype.H
+import hype.extended.colorist.HColorPool
 import processing.core.PApplet
 
 abstract class Hexbase : PApplet() {
@@ -47,6 +48,48 @@ abstract class Hexbase : PApplet() {
     var cueProgress		 = 0
 
     val myAudioData      = Array(myAudioRange) { 0f }
+
+    val colorPool = HColorPool(
+        0xEC02EC.rgb(),
+        0xA1029F.rgb(),
+        0x53044C.rgb(),
+        0x830270.rgb(),
+        0xEA00A0.rgb(),
+        0xB5014F.rgb(),
+        0xF862A3.rgb(),
+        0xF10063.rgb(),
+        0x822A4B.rgb(),
+        0xB3032B.rgb(),
+        0xFB0401.rgb(),
+        0xD32C02.rgb(),
+        0xAF2C01.rgb(),
+        0x862802.rgb(),
+        0x0208BC.rgb(),
+        0x0526E6.rgb(),
+        0x070B49.rgb(),
+        0x320479.rgb(),
+        0x3301BC.rgb(),
+        0x0054F1.rgb(),
+        0x0384FF.rgb(),
+        0x5E14E6.rgb(),
+        0x580A89.rgb(),
+        0xA30EE8.rgb(),
+        0x5F54ED.rgb(),
+        0x382674.rgb(),
+        0x9E5AF5.rgb(),
+        0xE757F0.rgb(),
+        0xA949AD.rgb(),
+        0x9E99FC.rgb()
+    )
+    val blueColorPool = HColorPool(
+        0x0208BC.rgb(),
+        0x0526E6.rgb(),
+        0x002CB8.rgb(),
+        0x3301BC.rgb(),
+        0x0054F1.rgb(),
+        0x0384FF.rgb(),
+        0x5F54ED.rgb()
+    )
 
     override fun settings() {
         size(stageW, stageH)
