@@ -15,7 +15,7 @@ abstract class Hexbase : PApplet() {
 // PRIMARY SETTINGS
     val fullscreen     	 = false
     val recordOutput	 = false
-    val streamAudio		 = false
+    val streamAudio		 = true
     val showVisualizer   = true
     
 // *************************************************************************************************************
