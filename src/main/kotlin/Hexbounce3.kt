@@ -7,8 +7,7 @@ import hype.extended.behavior.HRotate
 import hype.extended.behavior.HTimer
 import hype.extended.layout.HGridLayout
 
-
-class Hexbounce4 : Hexbase() {
+class Hexbounce3: Hexbase() {
     var swapXY = false
 
     lateinit var canvas: HCanvas
@@ -24,8 +23,9 @@ class Hexbounce4 : Hexbase() {
     override fun hexBaseSetup() {
         canvas = HCanvas(stageW.toFloat(), stageH.toFloat()).autoClear(false).fade(2)
         canvas2 = HCanvas(stageW.toFloat(), stageH.toFloat()).autoClear(false).fade(3)
-        H.add(canvas2)
+
         H.add(canvas)
+        H.add(canvas2)
 
         pool1.autoParent(canvas)
             .add(HShape(PATH_DATA + "cyrcle1.svg"))
@@ -47,8 +47,7 @@ class Hexbounce4 : Hexbase() {
                 val d = obj as HShape
                 d
                     .enableStyle(false)
-                    //.stroke(0x000000.rgb())
-                    .noStroke()
+                    .stroke(0x000000.rgb())
                     .anchorAt(H.CENTER)
                     .rotate( 90f * random(3f).toInt() )
                     .size( initSize.toFloat() )
@@ -63,22 +62,17 @@ class Hexbounce4 : Hexbase() {
                     .target(d)
                     .property(H.SIZE)
                     .relativeVal(initSize.toFloat())
-                    .range(-100f, 250f)
-                    .speed(random(2f))
-                    .freq(2f)
-                    .currentStep(pool1.currentIndex().toFloat())
+                    .range(-100f, 100f)
+                    .speed(1f)
+                    .freq(3f)
+                    .currentStep(pool1.currentIndex().toFloat()*3)
             }
             .requestAll()
 
         pool2.autoParent(canvas2)
-            .add(HShape(PATH_DATA + "cyrcle1.svg"))
-            .add(HShape(PATH_DATA + "cyrcle2.svg"))
-            .add(HShape(PATH_DATA + "cyrcle3.svg"))
-            .add(HShape(PATH_DATA + "cyrcle4.svg"))
-            .add(HShape(PATH_DATA + "cyrcle5.svg"))
-            .add(HShape(PATH_DATA + "cyrcle6.svg"))
-            .add(HShape(PATH_DATA + "cyrcle7.svg"))
-            .layout(HGridLayout()
+            .add(HShape(PATH_DATA + "hexagon.svg"))
+            .layout(
+                HGridLayout()
                 .startX((stageW / pool2Cols / 2).toFloat())
                 .startY((stageW / pool2Cols / 2).toFloat())
                 .spacing((stageW / pool2Cols).toFloat(), (stageW / pool2Cols).toFloat())
@@ -86,11 +80,11 @@ class Hexbounce4 : Hexbase() {
             )
             .onCreate { obj ->
                 val d = obj as HShape
-                val initSizeOffset = random((myAudioRange * 6).toFloat()).toInt() + 200
+                val initSizeOffset = random((myAudioRange * 6).toFloat()).toInt() + 40
 
                 d
                     .enableStyle(false)
-                    .noStroke()
+                    .stroke(0x000000.rgb())
                     .anchorAt(H.CENTER)
                     .rotate( 90f * random(4f).toInt() )
                     .size( initSizeOffset.toFloat() )
@@ -98,26 +92,6 @@ class Hexbounce4 : Hexbase() {
                     .num("initSize", initSizeOffset.toFloat())
                     .num("band", random(myAudioRange.toFloat()).toInt().toFloat())
                     .num("rand", random(-50f, 50f))
-
-                if (d.num("band") > 4) {
-                    HOscillator()
-                        .target(d)
-                        .property(H.X)
-                        .relativeVal(d.x())
-                        .range(-100f, 100f)
-                        .speed(random(3f))
-                        .freq(2f)
-                        .currentStep(pool2.currentIndex().toFloat())
-                } else {
-                    HOscillator()
-                        .target(d)
-                        .property(H.Y)
-                        .relativeVal(d.y())
-                        .range(-100f, 100f)
-                        .speed(random(2f))
-                        .freq(2f)
-                        .currentStep(pool2.currentIndex().toFloat())
-                }
                 d.randomColors(colorPool.fillOnly())
             }
             .requestAll()
@@ -132,16 +106,16 @@ class Hexbounce4 : Hexbase() {
     }
 
     override fun hexBaseDraw() {
-        val canvasAlphaFft = map(myAudioData[0], 0f, (myAudioMax / 2).toFloat(), 10f, 255f).toInt()
+        val canvasAlphaFft = map(myAudioData[0], 0f, (100 / 2).toFloat(), 10f, 255f).toInt()
         canvas2.alpha(canvasAlphaFft)
         for (d in pool2) {
             val band = d.num("band").toInt()
             val initSize = d.num("initSize").toInt()
             val rand = d.num("rand").toInt()
             val sizeFft =
-                map(myAudioData[band], 0f, myAudioMax.toFloat(), initSize.toFloat(), (initSize + 200).toFloat()).toInt()
+                map(myAudioData[band], 0f, myAudioMax.toFloat(), 10f, (initSize + 200).toFloat()).toInt()
             val sizeFftSmall =
-                map(myAudioData[band], 0f, myAudioMax.toFloat(), initSize.toFloat(), (initSize + 50).toFloat()).toInt()
+                map(myAudioData[band], 0f, myAudioMax.toFloat(), 10f, (initSize + 50).toFloat()).toInt()
             val alphaFft = map(myAudioData[7], 0f, (myAudioMax / 4).toFloat(), 100f, 255f).toInt()
             val rotateFft = map(myAudioData[band], 0f, myAudioMax.toFloat(), -40f, 40f).toInt()
             val yFft = map(
@@ -159,7 +133,6 @@ class Hexbounce4 : Hexbase() {
                 (100 + rand).toFloat()
             ).toInt()
             if (band == 0) {
-                //d.rotate(rotateFft);
                 d.alpha(alphaFft)
                 if (swapXY) {
                     d.y(d.num("initY") + yFft)
